@@ -17,18 +17,18 @@ X_train, X_test, y_train, y_test = train_test_split(df['Message'],df['spam'], st
 bert_preprocess = hub.KerasLayer("https://tfhub.dev/tensorflow/bert_en_uncased_preprocess/3")
 bert_encoder = hub.KerasLayer("https://tfhub.dev/tensorflow/bert_en_uncased_L-12_H-768_A-12/4")
 
-def get_sentence_embeding(sentences):
-    preprocessed_text = bert_preprocess(sentences)
-    return bert_encoder(preprocessed_text)['pooled_output']
+def sentenceEmbedding(sentences):
+    preprocessed = bert_preprocess(sentences)
+    return bert_encoder(preprocessed)['pooled_output']
 
 
-text_input = tf.keras.layers.Input(shape=(), dtype=tf.string, name='text')
-preprocessed_text = bert_preprocess(text_input)
-outputs = bert_encoder(preprocessed_text)
+input = tf.keras.layers.Input(shape=(), dtype=tf.string, name='text')
+preprocessed = bert_preprocess(input)
+outputs = bert_encoder(preprocessed)
 
 l = tf.keras.layers.Dropout(0.1, name="dropout")(outputs['pooled_output'])
 l = tf.keras.layers.Dense(1, activation='sigmoid', name="output")(l)
-model = tf.keras.Model(inputs=[text_input], outputs = [l])
+model = tf.keras.Model(inputs=[input], outputs = [l])
 model.compile(optimizer='adam',loss='binary_crossentropy',metrics=['accuracy'])
 model.fit(X_train, y_train, epochs=1)
 
